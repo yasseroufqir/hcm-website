@@ -37,6 +37,7 @@ const animateSelectors = [
     '.method-card', '.motif-card',
     '.result-card', '.equation-highlight',
     '.app-card',
+    '.bench-card', '.bench-table-wrap',
     '.arch-card', '.code-tabs', '.library-tech-bar',
     '.team-card', '.ref-card',
     '.diagram-card'

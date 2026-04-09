@@ -271,6 +271,100 @@
             height: 100%;
             pointer-events: none;
         }
+
+        /* ── Benchmarks section ── */
+        #benchmarks .section-subtitle {
+            max-width: 740px;
+            margin: 0.6rem auto 0;
+            color: var(--text-muted, #64748b);
+            font-size: 1rem;
+            line-height: 1.65;
+        }
+        .bench-block { margin-top: 2.5rem; }
+        .bench-heading {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-primary, #f1f5f9);
+            margin-bottom: 1.2rem;
+            text-align: center;
+        }
+        .bench-table-wrap {
+            overflow-x: auto;
+            padding: 1.5rem;
+            background: rgba(15,23,42,0.6);
+            border: 1px solid rgba(99,102,241,0.15);
+            border-radius: 16px;
+        }
+        .bench-table {
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+            border-collapse: collapse;
+        }
+        .bench-table th,
+        .bench-table td {
+            padding: .6rem 1rem;
+            text-align: center;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            color: var(--text-muted, #94a3b8);
+            font-size: 0.9rem;
+        }
+        .bench-table thead th {
+            color: var(--text-primary, #f1f5f9);
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.72rem;
+            letter-spacing: 0.06em;
+            border-bottom: 2px solid rgba(99,102,241,0.3);
+        }
+        .bench-table td:first-child { text-align: left; font-weight: 600; color: #e2e8f0; }
+        .td-green { color: #34d399; font-weight: 700; }
+        .bench-note {
+            text-align: center; font-size: 0.78rem;
+            color: var(--text-muted, #64748b); margin-top: 0.6rem;
+        }
+        .bench-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+        @media (max-width: 768px) { .bench-grid { grid-template-columns: 1fr; } }
+        .bench-card {
+            background: rgba(99,102,241,0.06);
+            border: 1px solid rgba(99,102,241,0.15);
+            border-radius: 12px;
+            padding: 1.2rem;
+            transition: transform 0.3s, border-color 0.3s;
+        }
+        .bench-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(99,102,241,0.35);
+        }
+        .bench-card h4 {
+            font-size: 0.92rem; font-weight: 600;
+            color: var(--text-primary, #f1f5f9);
+            margin-bottom: 0.6rem;
+        }
+        .bench-card img {
+            width: 100%; border-radius: 8px;
+            margin-bottom: 0.6rem;
+            background: #f8fafc; padding: 3px;
+        }
+        .bench-card p {
+            font-size: 0.82rem; line-height: 1.55;
+            color: var(--text-muted, #94a3b8);
+        }
+        .bench-star-sep {
+            margin-top: 3rem; padding-top: 2.5rem;
+            border-top: 1px solid rgba(99,102,241,0.12);
+        }
+        .bench-star-intro {
+            text-align: center; max-width: 700px;
+            margin: 0 auto 1.5rem;
+            color: var(--text-muted, #94a3b8);
+            font-size: 0.95rem; line-height: 1.6;
+        }
     </style>
 </head>
 <body>
@@ -290,6 +384,7 @@
                 <li><a href="#problem">Problem</a></li>
                 <li><a href="#methodology">Methodology</a></li>
                 <li><a href="#results">Results</a></li>
+                <li><a href="#benchmarks">Benchmarks</a></li>
                 <li><a href="#applications">Applications</a></li>
                 <li><a href="#library">Library</a></li>
                 <li><a href="#team">Team</a></li>
@@ -744,6 +839,77 @@
             <div class="report-cta">
                 <p>Read the full technical report with proofs, algorithms, and experimental details.</p>
                 <a href="report.pdf" class="btn btn-primary" download>Download Full Report (PDF)</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Benchmarks Section -->
+    <section class="section section-dark" id="benchmarks">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-tag">04b &mdash; Experimental Validation</span>
+                <h2 class="section-title">Benchmarks</h2>
+                <p class="section-subtitle">We validated our HCM pipeline on synthetic hierarchical data and a simulation inspired by the Tennessee STAR experiment (Krueger,&nbsp;1999), confirming that per-unit estimation recovers the true ATE where na&iuml;ve methods fail.</p>
+            </div>
+
+            <!-- ATE Recovery Table -->
+            <div class="bench-block">
+                <h3 class="bench-heading">ATE Recovery &mdash; Three Canonical HCM Motifs</h3>
+                <div class="bench-table-wrap">
+                    <table class="bench-table">
+                        <thead>
+                            <tr><th>Motif</th><th>True ATE</th><th>Estimated</th><th>Error</th><th>Identification Strategy</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>Confounder</td><td>2.00</td><td>1.99</td><td class="td-green">0.5%</td><td>Backdoor (collapsed)</td></tr>
+                            <tr><td>Confounder &amp; Interference</td><td>1.50</td><td>1.52</td><td class="td-green">1.3%</td><td>Front-door</td></tr>
+                            <tr><td>Instrument</td><td>3.00</td><td>2.97</td><td class="td-green">1.0%</td><td>IV reweighting</td></tr>
+                        </tbody>
+                    </table>
+                    <p class="bench-note">n = 100 units, m = 50 sub-units, Gaussian mechanisms. Per-unit regression averaged over units.</p>
+                </div>
+            </div>
+
+            <!-- 4-figure grid -->
+            <div class="bench-grid">
+                <div class="bench-card">
+                    <h4>Bias vs Confounding Strength</h4>
+                    <img src="img/bias_confounding.png" alt="Bias and MSE vs confounding strength" loading="lazy">
+                    <p>The na&iuml;ve pooled estimator&rsquo;s bias grows with &gamma;, while per-unit and fixed-effects remain centred on the true ATE.</p>
+                </div>
+                <div class="bench-card">
+                    <h4>RMSE Convergence</h4>
+                    <img src="img/rmse_convergence.png" alt="RMSE vs sample size" loading="lazy">
+                    <p>Na&iuml;ve plateaus at irreducible bias. Per-unit and fixed-effects follow the classical O(1/&radic;n) convergence rate.</p>
+                </div>
+                <div class="bench-card">
+                    <h4>ATE Distribution &mdash; 100 Replications</h4>
+                    <img src="img/ate_distributions.png" alt="ATE distribution histograms" loading="lazy">
+                    <p>With strong confounding the na&iuml;ve histogram shifts entirely away from the truth; per-unit estimators stay centred.</p>
+                </div>
+                <div class="bench-card">
+                    <h4>Impact of Graph Structure</h4>
+                    <img src="img/graph_structures.png" alt="ATE by causal structure" loading="lazy">
+                    <p>Chain and collider: no confounding, na&iuml;ve works. Fork: na&iuml;ve biased, per-unit corrects. Mediator+confounder: most complex case.</p>
+                </div>
+            </div>
+
+            <!-- STAR benchmark -->
+            <div class="bench-block bench-star-sep">
+                <h3 class="bench-heading">Real-World Benchmark &mdash; Tennessee STAR Simulation</h3>
+                <p class="bench-star-intro">We simulated data matching the STAR experiment&rsquo;s hierarchical structure (80&nbsp;schools &times; 150&nbsp;students, unit-level confounding) and compared our estimators against Krueger&rsquo;s published OLS and 2SLS coefficients.</p>
+                <div class="bench-grid">
+                    <div class="bench-card">
+                        <h4>Estimator Comparison</h4>
+                        <img src="img/star_estimators.png" alt="STAR estimator comparison" loading="lazy">
+                        <p>Na&iuml;ve overestimates ATE by &sim;5%. Per-unit (HSCM) and fixed-effects recover the true ATE of 5&nbsp;percentile points.</p>
+                    </div>
+                    <div class="bench-card">
+                        <h4>Grade-by-Grade &mdash; Simulated vs Krueger (1999)</h4>
+                        <img src="img/star_grades.png" alt="ATE per grade: simulated vs Krueger" loading="lazy">
+                        <p>Our per-unit estimates are consistent with Krueger&rsquo;s OLS+FE and 2SLS results across all four grade levels (K&ndash;3).</p>
+                    </div>
+                </div>
             </div>
         </div>
     </section>
