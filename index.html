@@ -695,34 +695,64 @@
                 <div class="motifs-grid">
                     <div class="motif-card">
                         <div class="motif-header">Confounder</div>
-                        <div class="motif-desc">
-                            Hidden unit-level variable \(U_i\) affects both treatment
-                            \(A_{ij}\) and outcome \(Y_{ij}\) at the subunit level.
+                        <div class="motif-toggle">
+                            <button class="motif-toggle-btn active" data-show="theory">Theory</button>
+                            <button class="motif-toggle-btn" data-show="code">Code</button>
                         </div>
-                        <div class="motif-example">
-                            <strong>Example:</strong> School budget affects both tutoring hours and test scores.
+                        <div class="motif-theory active">
+                            <div class="motif-desc">Hidden unit-level variable \(U_i\) affects both treatment \(A_{ij}\) and outcome \(Y_{ij}\) at the subunit level.</div>
+                            <div class="motif-example"><strong>Example:</strong> School budget affects both tutoring hours and test scores.</div>
+                        </div>
+                        <div class="motif-code">
+                            <code>hscm = HSCMParametric(
+  nodes={"U","A","Y"},
+  edges={("U","A"),("U","Y"),("A","Y")},
+  unit={"U"}, subunit={"A","Y"}
+)
+collapsed = collapse(hscm)
+result = identify_effect(collapsed, Y="Q^y", X="Q^a")</code>
                         </div>
                     </div>
                     <div class="motif-card">
                         <div class="motif-header">Confounder &amp; Interference</div>
-                        <div class="motif-desc">
-                            Subunit treatments \(A_{ij}\) affect an observable unit-level variable
-                            \(Z_i\) that in turn affects all subunit outcomes.
+                        <div class="motif-toggle">
+                            <button class="motif-toggle-btn active" data-show="theory">Theory</button>
+                            <button class="motif-toggle-btn" data-show="code">Code</button>
                         </div>
-                        <div class="motif-example">
-                            <strong>Example:</strong> More tutored students leads to school-wide academic culture,
-                            improving everyone's scores.
+                        <div class="motif-theory active">
+                            <div class="motif-desc">Subunit treatments \(A_{ij}\) affect an observable unit-level variable \(Z_i\) that in turn affects all subunit outcomes.</div>
+                            <div class="motif-example"><strong>Example:</strong> More tutored students leads to school-wide academic culture, improving everyone's scores.</div>
+                        </div>
+                        <div class="motif-code">
+                            <code>hscm = HSCMParametric(
+  nodes={"U","A","Z","Y"},
+  edges={("U","A"),("U","Y"),("A","Y"),
+         ("A","Z"),("Z","Y")},
+  unit={"U","Z"}, subunit={"A","Y"}
+)
+collapsed = collapse(hscm)
+result = identify_effect(collapsed, Y="Q^y", X="Q^a")</code>
                         </div>
                     </div>
                     <div class="motif-card">
                         <div class="motif-header">Instrument</div>
-                        <div class="motif-desc">
-                            A subunit-level instrument \(Z_{ij}\) exogenously affects treatment,
-                            with the outcome \(\bar{Y}_i\) now at the unit level.
+                        <div class="motif-toggle">
+                            <button class="motif-toggle-btn active" data-show="theory">Theory</button>
+                            <button class="motif-toggle-btn" data-show="code">Code</button>
                         </div>
-                        <div class="motif-example">
-                            <strong>Example:</strong> Random tutoring incentives (instrument) affect whether a school
-                            appears on a "best schools" list.
+                        <div class="motif-theory active">
+                            <div class="motif-desc">A subunit-level instrument \(Z_{ij}\) exogenously affects treatment, with the outcome \(\bar{Y}_i\) now at the unit level.</div>
+                            <div class="motif-example"><strong>Example:</strong> Random tutoring incentives (instrument) affect whether a school appears on a "best schools" list.</div>
+                        </div>
+                        <div class="motif-code">
+                            <code>hscm = HSCMParametric(
+  nodes={"U","Z","A","Y"},
+  edges={("Z","A"),("U","A"),("U","Y"),
+         ("A","Y")},
+  unit={"U","Y"}, subunit={"Z","A"}
+)
+collapsed = collapse(hscm)
+result = identify_effect(collapsed, Y="Q^y", X="Q^{a|z}")</code>
                         </div>
                     </div>
                 </div>
@@ -840,6 +870,56 @@
                 <p>Read the full technical report with proofs, algorithms, and experimental details.</p>
                 <a href="report.pdf" class="btn btn-primary" download>Download Full Report (PDF)</a>
             </div>
+
+            <div class="id-gallery">
+                <h3>Identification Gallery</h3>
+                <div class="gallery-tabs">
+                    <button class="gallery-tab active" data-panel="gal-confounder">Confounder</button>
+                    <button class="gallery-tab" data-panel="gal-ci">Conf. &amp; Interference</button>
+                    <button class="gallery-tab" data-panel="gal-instrument">Instrument</button>
+                </div>
+
+                <div class="gallery-panel active" id="gal-confounder">
+                    <div class="gallery-stage">
+                        <div class="gallery-stage-label">(a) HCM</div>
+                        <svg viewBox="0 0 180 160"><defs><marker id="ga1" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#94a3b8"/></marker></defs><circle cx="90" cy="25" r="20" fill="none" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="5 3"/><text x="90" y="30" text-anchor="middle" fill="#e8e8f0" font-size="13" font-family="Inter">U<tspan font-size="9" dy="4">i</tspan></text><circle cx="45" cy="100" r="18" fill="none" stroke="#94a3b8" stroke-width="1.5"/><text x="45" y="105" text-anchor="middle" fill="#e8e8f0" font-size="12" font-family="Inter">A<tspan font-size="8" dy="3">ij</tspan></text><circle cx="135" cy="100" r="18" fill="none" stroke="#94a3b8" stroke-width="1.5"/><text x="135" y="105" text-anchor="middle" fill="#e8e8f0" font-size="12" font-family="Inter">Y<tspan font-size="8" dy="3">ij</tspan></text><line x1="75" y1="38" x2="57" y2="85" stroke="#64748b" stroke-width="1.2" stroke-dasharray="4 3"/><line x1="105" y1="38" x2="123" y2="85" stroke="#64748b" stroke-width="1.2" stroke-dasharray="4 3"/><line x1="63" y1="100" x2="117" y2="100" stroke="#94a3b8" stroke-width="1.2" marker-end="url(#ga1)"/><rect x="20" y="72" width="140" height="60" rx="5" fill="none" stroke="#64748b" stroke-width="1" stroke-dasharray="6 3"/><text x="150" y="127" fill="#64748b" font-size="11" font-style="italic" font-family="Inter">m</text><rect x="8" y="8" width="164" height="145" rx="6" fill="none" stroke="#64748b" stroke-width="1" stroke-dasharray="6 3"/><text x="160" y="148" fill="#64748b" font-size="11" font-style="italic" font-family="Inter">n</text></svg>
+                    </div>
+                    <div class="gallery-arrow">&rarr;</div>
+                    <div class="gallery-stage">
+                        <div class="gallery-stage-label">(b) Collapsed</div>
+                        <svg viewBox="0 0 180 140"><defs><marker id="ga2" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#94a3b8"/></marker></defs><circle cx="90" cy="25" r="20" fill="none" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="5 3"/><text x="90" y="30" text-anchor="middle" fill="#e8e8f0" font-size="13" font-family="Inter">U<tspan font-size="9" dy="4">i</tspan></text><circle cx="45" cy="100" r="18" fill="none" stroke="#818cf8" stroke-width="1.5"/><text x="45" y="105" text-anchor="middle" fill="#818cf8" font-size="11" font-family="Inter">Q<tspan font-size="8" baseline-shift="super">a</tspan></text><circle cx="135" cy="100" r="18" fill="none" stroke="#818cf8" stroke-width="1.5"/><text x="135" y="105" text-anchor="middle" fill="#818cf8" font-size="10" font-family="Inter">Q<tspan font-size="7" baseline-shift="super">y|a</tspan></text><line x1="75" y1="38" x2="57" y2="85" stroke="#64748b" stroke-width="1.2" stroke-dasharray="4 3"/><line x1="105" y1="38" x2="123" y2="85" stroke="#64748b" stroke-width="1.2" stroke-dasharray="4 3"/><line x1="63" y1="100" x2="117" y2="100" stroke="#94a3b8" stroke-width="1.2" marker-end="url(#ga2)"/><rect x="8" y="8" width="164" height="125" rx="6" fill="none" stroke="#64748b" stroke-width="1" stroke-dasharray="6 3"/><text x="160" y="128" fill="#64748b" font-size="11" font-style="italic" font-family="Inter">n</text></svg>
+                    </div>
+                    <div class="gallery-arrow">&rarr;</div>
+                    <div class="gallery-stage">
+                        <div class="gallery-stage-label">(c) Augmented</div>
+                        <svg viewBox="0 0 200 160"><defs><marker id="ga3" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#94a3b8"/></marker></defs><circle cx="100" cy="20" r="18" fill="none" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="5 3"/><text x="100" y="25" text-anchor="middle" fill="#e8e8f0" font-size="12" font-family="Inter">U<tspan font-size="8" dy="3">i</tspan></text><circle cx="45" cy="80" r="16" fill="none" stroke="#818cf8" stroke-width="1.5"/><text x="45" y="85" text-anchor="middle" fill="#818cf8" font-size="10" font-family="Inter">Q<tspan font-size="7" baseline-shift="super">a</tspan></text><circle cx="155" cy="80" r="16" fill="none" stroke="#818cf8" stroke-width="1.5"/><text x="155" y="85" text-anchor="middle" fill="#818cf8" font-size="9" font-family="Inter">Q<tspan font-size="7" baseline-shift="super">y|a</tspan></text><circle cx="100" cy="135" r="16" fill="rgba(99,102,241,0.15)" stroke="#22d3ee" stroke-width="2"/><text x="100" y="140" text-anchor="middle" fill="#22d3ee" font-size="10" font-weight="600" font-family="Inter">Q&#770;<tspan font-size="7" baseline-shift="super">y</tspan></text><line x1="85" y1="33" x2="55" y2="67" stroke="#64748b" stroke-width="1.2" stroke-dasharray="4 3"/><line x1="115" y1="33" x2="145" y2="67" stroke="#64748b" stroke-width="1.2" stroke-dasharray="4 3"/><line x1="61" y1="80" x2="139" y2="80" stroke="#94a3b8" stroke-width="1.2" marker-end="url(#ga3)"/><line x1="52" y1="94" x2="90" y2="122" stroke="#22d3ee" stroke-width="1.5" stroke-dasharray="3 2"/><line x1="148" y1="94" x2="110" y2="122" stroke="#22d3ee" stroke-width="1.5" stroke-dasharray="3 2"/></svg>
+                    </div>
+                </div>
+
+                <div class="gallery-panel" id="gal-ci">
+                    <div class="gallery-stage">
+                        <div class="gallery-stage-label">(a) HCM</div>
+                        <svg viewBox="0 0 180 180"><defs><marker id="gb1" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#94a3b8"/></marker></defs><circle cx="90" cy="20" r="18" fill="none" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="5 3"/><text x="90" y="25" text-anchor="middle" fill="#e8e8f0" font-size="12" font-family="Inter">U<tspan font-size="8" dy="3">i</tspan></text><circle cx="40" cy="90" r="16" fill="none" stroke="#94a3b8" stroke-width="1.5"/><text x="40" y="95" text-anchor="middle" fill="#e8e8f0" font-size="11" font-family="Inter">A<tspan font-size="7" dy="2">ij</tspan></text><circle cx="140" cy="90" r="16" fill="none" stroke="#94a3b8" stroke-width="1.5"/><text x="140" y="95" text-anchor="middle" fill="#e8e8f0" font-size="11" font-family="Inter">Y<tspan font-size="7" dy="2">ij</tspan></text><circle cx="90" cy="155" r="16" fill="none" stroke="#94a3b8" stroke-width="1.5"/><text x="90" y="160" text-anchor="middle" fill="#e8e8f0" font-size="11" font-family="Inter">Z<tspan font-size="7" dy="2">i</tspan></text><line x1="76" y1="33" x2="50" y2="77" stroke="#64748b" stroke-width="1.2" stroke-dasharray="4 3"/><line x1="104" y1="33" x2="130" y2="77" stroke="#64748b" stroke-width="1.2" stroke-dasharray="4 3"/><line x1="56" y1="90" x2="124" y2="90" stroke="#94a3b8" stroke-width="1.2" marker-end="url(#gb1)"/><line x1="50" y1="104" x2="80" y2="142" stroke="#94a3b8" stroke-width="1.2" marker-end="url(#gb1)"/><line x1="100" y1="142" x2="130" y2="104" stroke="#94a3b8" stroke-width="1.2" marker-end="url(#gb1)"/></svg>
+                    </div>
+                    <div class="gallery-arrow">&rarr;</div>
+                    <div class="gallery-stage">
+                        <div class="gallery-stage-label">(b) Collapsed + Augmented</div>
+                        <svg viewBox="0 0 200 160"><defs><marker id="gb2" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#94a3b8"/></marker></defs><circle cx="100" cy="20" r="16" fill="none" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="5 3"/><text x="100" y="25" text-anchor="middle" fill="#e8e8f0" font-size="11" font-family="Inter">U<tspan font-size="7" dy="2">i</tspan></text><circle cx="40" cy="75" r="14" fill="none" stroke="#818cf8" stroke-width="1.5"/><text x="40" y="80" text-anchor="middle" fill="#818cf8" font-size="9" font-family="Inter">Q<tspan font-size="7" baseline-shift="super">a</tspan></text><circle cx="160" cy="75" r="14" fill="none" stroke="#818cf8" stroke-width="1.5"/><text x="160" y="80" text-anchor="middle" fill="#818cf8" font-size="8" font-family="Inter">Q<tspan font-size="6" baseline-shift="super">y|a</tspan></text><circle cx="100" cy="75" r="14" fill="none" stroke="#94a3b8" stroke-width="1.5"/><text x="100" y="80" text-anchor="middle" fill="#e8e8f0" font-size="11" font-family="Inter">Z<tspan font-size="7" dy="2">i</tspan></text><circle cx="100" cy="135" r="14" fill="rgba(99,102,241,0.15)" stroke="#22d3ee" stroke-width="2"/><text x="100" y="140" text-anchor="middle" fill="#22d3ee" font-size="9" font-weight="600" font-family="Inter">Q&#770;<tspan font-size="7" baseline-shift="super">y</tspan></text><line x1="54" y1="75" x2="86" y2="75" stroke="#94a3b8" stroke-width="1.2" marker-end="url(#gb2)"/><line x1="114" y1="75" x2="146" y2="75" stroke="#94a3b8" stroke-width="1.2" marker-end="url(#gb2)"/><line x1="87" y1="33" x2="48" y2="64" stroke="#64748b" stroke-width="1.2" stroke-dasharray="4 3"/><line x1="113" y1="33" x2="152" y2="64" stroke="#64748b" stroke-width="1.2" stroke-dasharray="4 3"/><line x1="47" y1="88" x2="90" y2="124" stroke="#22d3ee" stroke-width="1.5" stroke-dasharray="3 2"/><line x1="153" y1="88" x2="110" y2="124" stroke="#22d3ee" stroke-width="1.5" stroke-dasharray="3 2"/></svg>
+                    </div>
+                </div>
+
+                <div class="gallery-panel" id="gal-instrument">
+                    <div class="gallery-stage">
+                        <div class="gallery-stage-label">(a) HCM</div>
+                        <svg viewBox="0 0 200 160"><defs><marker id="gc1" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#94a3b8"/></marker></defs><circle cx="140" cy="20" r="16" fill="none" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="5 3"/><text x="140" y="25" text-anchor="middle" fill="#e8e8f0" font-size="11" font-family="Inter">U<tspan font-size="7" dy="2">i</tspan></text><circle cx="40" cy="80" r="16" fill="none" stroke="#94a3b8" stroke-width="1.5"/><text x="40" y="85" text-anchor="middle" fill="#e8e8f0" font-size="10" font-family="Inter">Z<tspan font-size="7" dy="2">ij</tspan></text><circle cx="110" cy="80" r="16" fill="none" stroke="#94a3b8" stroke-width="1.5"/><text x="110" y="85" text-anchor="middle" fill="#e8e8f0" font-size="10" font-family="Inter">A<tspan font-size="7" dy="2">ij</tspan></text><circle cx="170" cy="130" r="16" fill="none" stroke="#94a3b8" stroke-width="1.5"/><text x="170" y="135" text-anchor="middle" fill="#e8e8f0" font-size="11" font-family="Inter">Y<tspan font-size="7" dy="2">i</tspan></text><line x1="56" y1="80" x2="94" y2="80" stroke="#94a3b8" stroke-width="1.2" marker-end="url(#gc1)"/><line x1="122" y1="92" x2="158" y2="118" stroke="#94a3b8" stroke-width="1.2" marker-end="url(#gc1)"/><line x1="148" y1="34" x2="160" y2="115" stroke="#64748b" stroke-width="1.2" stroke-dasharray="4 3"/><line x1="132" y1="34" x2="118" y2="66" stroke="#64748b" stroke-width="1.2" stroke-dasharray="4 3"/></svg>
+                    </div>
+                    <div class="gallery-arrow">&rarr;</div>
+                    <div class="gallery-stage">
+                        <div class="gallery-stage-label">(b) Collapsed + Marginalized</div>
+                        <svg viewBox="0 0 200 140"><defs><marker id="gc2" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#94a3b8"/></marker></defs><circle cx="100" cy="20" r="16" fill="none" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="5 3"/><text x="100" y="25" text-anchor="middle" fill="#e8e8f0" font-size="11" font-family="Inter">U<tspan font-size="7" dy="2">i</tspan></text><circle cx="50" cy="80" r="14" fill="none" stroke="#818cf8" stroke-width="1.5"/><text x="50" y="85" text-anchor="middle" fill="#818cf8" font-size="9" font-family="Inter">Q<tspan font-size="7" baseline-shift="super">a|z</tspan></text><circle cx="150" cy="80" r="14" fill="none" stroke="#94a3b8" stroke-width="1.5"/><text x="150" y="85" text-anchor="middle" fill="#e8e8f0" font-size="11" font-family="Inter">Y<tspan font-size="7" dy="2">i</tspan></text><circle cx="100" cy="120" r="14" fill="rgba(99,102,241,0.15)" stroke="#22d3ee" stroke-width="2"/><text x="100" y="125" text-anchor="middle" fill="#22d3ee" font-size="9" font-weight="600" font-family="Inter">Q&#770;<tspan font-size="7" baseline-shift="super">y</tspan></text><line x1="64" y1="80" x2="136" y2="80" stroke="#94a3b8" stroke-width="1.2" marker-end="url(#gc2)"/><line x1="87" y1="33" x2="57" y2="68" stroke="#64748b" stroke-width="1.2" stroke-dasharray="4 3"/><line x1="113" y1="33" x2="143" y2="68" stroke="#64748b" stroke-width="1.2" stroke-dasharray="4 3"/><line x1="57" y1="93" x2="90" y2="110" stroke="#22d3ee" stroke-width="1.5" stroke-dasharray="3 2"/><line x1="143" y1="93" x2="110" y2="110" stroke="#22d3ee" stroke-width="1.5" stroke-dasharray="3 2"/></svg>
+                    </div>
+                </div>
+            </div>
         </div>
     </section>
 
@@ -852,6 +932,21 @@
                 <p class="section-subtitle">We validated our HCM pipeline on synthetic hierarchical data and a simulation inspired by the Tennessee STAR experiment (Krueger,&nbsp;1999), confirming that per-unit estimation recovers the true ATE where na&iuml;ve methods fail.</p>
             </div>
 
+            <div class="bench-counters">
+                <div class="bench-counter">
+                    <span class="counter-number" data-target="1.3" data-decimals="1">0</span><span class="counter-suffix">%</span>
+                    <span class="counter-label">Max ATE Error (3 motifs)</span>
+                </div>
+                <div class="bench-counter">
+                    <span class="counter-number" data-target="3">0</span><span class="counter-suffix">/3</span>
+                    <span class="counter-label">Motifs Recovered</span>
+                </div>
+                <div class="bench-counter">
+                    <span class="counter-number" data-target="80">0</span>
+                    <span class="counter-label">Schools Simulated (STAR)</span>
+                </div>
+            </div>
+
             <!-- ATE Recovery Table -->
             <div class="bench-block">
                 <h3 class="bench-heading">ATE Recovery &mdash; Three Canonical HCM Motifs</h3>
@@ -861,9 +956,9 @@
                             <tr><th>Motif</th><th>True ATE</th><th>Estimated</th><th>Error</th><th>Identification Strategy</th></tr>
                         </thead>
                         <tbody>
-                            <tr><td>Confounder</td><td>2.00</td><td>1.99</td><td class="td-green">0.5%</td><td>Backdoor (collapsed)</td></tr>
-                            <tr><td>Confounder &amp; Interference</td><td>1.50</td><td>1.52</td><td class="td-green">1.3%</td><td>Front-door</td></tr>
-                            <tr><td>Instrument</td><td>3.00</td><td>2.97</td><td class="td-green">1.0%</td><td>IV reweighting</td></tr>
+                            <tr><td>Confounder</td><td>2.00</td><td>1.99</td><td class="td-green td-check">0.5%</td><td>Backdoor (collapsed)</td></tr>
+                            <tr><td>Confounder &amp; Interference</td><td>1.50</td><td>1.52</td><td class="td-green td-check">1.3%</td><td>Front-door</td></tr>
+                            <tr><td>Instrument</td><td>3.00</td><td>2.97</td><td class="td-green td-check">1.0%</td><td>IV reweighting</td></tr>
                         </tbody>
                     </table>
                     <p class="bench-note">n = 100 units, m = 50 sub-units, Gaussian mechanisms. Per-unit regression averaged over units.</p>
@@ -1220,12 +1315,30 @@ estimator.fit(Y, X=A)  <span class="cm"># supports 12+ parametric families</span
                     <span class="logo-icon">&#x2261;</span>
                     <span>HCM &mdash; Hierarchical Causal Models</span>
                 </div>
+                <div class="footer-links">
+                    <a href="https://github.com/janisaiad/hierarchicalcausalmodels" target="_blank">
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+                        GitHub Repository
+                    </a>
+                    <a href="report.pdf" download>
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 1v10M4 8l4 4 4-4M2 14h12"/></svg>
+                        Technical Report (PDF)
+                    </a>
+                </div>
                 <p class="footer-text">
-                    Projet Scientifique Collectif &mdash; &Eacute;cole Polytechnique &mdash; 2025&ndash;2026
+                    Projet Scientifique Collectif &mdash; &Eacute;cole Polytechnique &amp; Institut Polytechnique de Paris &mdash; 2025&ndash;2026
+                </p>
+                <p class="footer-supervisors">
+                    Supervis&eacute; par David Cort&eacute;s (X97) et Janis Aiad (X22)
                 </p>
             </div>
         </div>
     </footer>
+
+    <div class="lightbox-overlay" id="lightbox">
+        <button class="lightbox-close">&times;</button>
+        <img src="" alt="">
+    </div>
 
     <script src="script.js"></script>
     <script>

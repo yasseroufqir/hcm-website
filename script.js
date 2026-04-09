@@ -40,7 +40,8 @@ const animateSelectors = [
     '.bench-card', '.bench-table-wrap',
     '.arch-card', '.code-tabs', '.library-tech-bar',
     '.team-card', '.ref-card',
-    '.diagram-card'
+    '.diagram-card',
+    '.bench-counter', '.id-gallery', '.gallery-stage'
 ];
 
 animateSelectors.forEach(selector => {
@@ -73,6 +74,68 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             window.scrollTo({ top, behavior: 'smooth' });
         }
     });
+});
+
+// Lightbox
+(function() {
+    const overlay = document.getElementById('lightbox');
+    if (!overlay) return;
+    const img = overlay.querySelector('img');
+    const close = overlay.querySelector('.lightbox-close');
+    document.querySelectorAll('.bench-card img').forEach(cardImg => {
+        cardImg.style.cursor = 'zoom-in';
+        cardImg.addEventListener('click', () => {
+            img.src = cardImg.src;
+            img.alt = cardImg.alt;
+            overlay.classList.add('active');
+        });
+    });
+    close.addEventListener('click', () => overlay.classList.remove('active'));
+    overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.classList.remove('active'); });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') overlay.classList.remove('active'); });
+})();
+
+// Identification Gallery tabs
+document.querySelectorAll('.gallery-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+        document.querySelectorAll('.gallery-tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.gallery-panel').forEach(p => p.classList.remove('active'));
+        tab.classList.add('active');
+        document.getElementById(tab.dataset.panel).classList.add('active');
+    });
+});
+
+// Motif theory/code toggle
+document.querySelectorAll('.motif-toggle-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        const card = btn.closest('.motif-card');
+        card.querySelectorAll('.motif-toggle-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        const show = btn.dataset.show;
+        card.querySelector('.motif-theory').classList.toggle('active', show === 'theory');
+        card.querySelector('.motif-code').classList.toggle('active', show === 'code');
+    });
+});
+
+// Parallax titles
+window.addEventListener('scroll', () => {
+    document.querySelectorAll('.section-title').forEach(title => {
+        const rect = title.getBoundingClientRect();
+        if (rect.top < window.innerHeight && rect.bottom > 0) {
+            const offset = (rect.top - window.innerHeight / 2) * 0.04;
+            title.style.transform = `translateY(${offset}px)`;
+        }
+    });
+});
+
+// Hero parallax
+window.addEventListener('scroll', () => {
+    const hero = document.querySelector('.hero-content');
+    if (hero) {
+        const s = window.scrollY;
+        hero.style.transform = `translateY(${s * 0.25}px)`;
+        hero.style.opacity = Math.max(0, 1 - s / 700);
+    }
 });
 
 // Active nav link on scroll
