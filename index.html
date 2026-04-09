@@ -4,10 +4,274 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hierarchical Causal Models | PSC Project</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%236366f1'/><text x='16' y='22' font-family='sans-serif' font-size='16' font-weight='bold' fill='white' text-anchor='middle'>H</text></svg>">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'\\(',right:'\\)',display:false}]});"></script>
     <link rel="stylesheet" href="style.css">
+    <style>
+        /* ── Pipeline ── */
+        .pipeline-section {
+            margin-top: 4rem;
+            padding: 2.5rem;
+            background: var(--surface, #0f172a);
+            border: 1px solid rgba(99,102,241,0.2);
+            border-radius: 16px;
+        }
+        .pipeline-title {
+            text-align: center;
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 2rem;
+            color: var(--text-primary, #f1f5f9);
+        }
+        .pipeline-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0;
+            flex-wrap: wrap;
+            row-gap: 1rem;
+        }
+        .pipeline-step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+            width: 110px;
+            text-align: center;
+        }
+        .pipeline-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: rgba(99,102,241,0.12);
+            border: 1px solid rgba(99,102,241,0.35);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #818cf8;
+            transition: background 0.3s, border-color 0.3s;
+        }
+        .pipeline-step:hover .pipeline-icon {
+            background: rgba(99,102,241,0.25);
+            border-color: rgba(99,102,241,0.7);
+        }
+        .pipeline-label {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #818cf8;
+        }
+        .pipeline-desc {
+            font-size: 0.68rem;
+            color: var(--text-muted, #64748b);
+            line-height: 1.4;
+        }
+        .pipeline-connector {
+            flex: 0 0 32px;
+            height: 2px;
+            background: linear-gradient(90deg, rgba(99,102,241,0.3), rgba(99,102,241,0.7), rgba(99,102,241,0.3));
+            position: relative;
+            overflow: visible;
+        }
+        .pipeline-pulse {
+            position: absolute;
+            top: 50%;
+            left: -6px;
+            transform: translateY(-50%);
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #6366f1;
+            box-shadow: 0 0 8px #6366f1;
+            animation: pulsemove 2s linear infinite;
+        }
+        @keyframes pulsemove {
+            0%   { left: -6px; opacity: 0; }
+            10%  { opacity: 1; }
+            90%  { opacity: 1; }
+            100% { left: calc(100% - 4px); opacity: 0; }
+        }
+
+        /* ── Results counters ── */
+        .results-counters {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 1.25rem;
+            margin: 2.5rem 0;
+        }
+        .counter-card {
+            background: rgba(99,102,241,0.08);
+            border: 1px solid rgba(99,102,241,0.2);
+            border-radius: 12px;
+            padding: 1.5rem 1rem;
+            text-align: center;
+        }
+        .counter-number {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: #818cf8;
+            display: inline-block;
+            font-variant-numeric: tabular-nums;
+        }
+        .counter-suffix {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #818cf8;
+            opacity: 0.7;
+        }
+        .counter-label {
+            display: block;
+            font-size: 0.8rem;
+            color: var(--text-muted, #64748b);
+            margin-top: 0.4rem;
+            line-height: 1.4;
+        }
+
+        /* ── Bar chart ── */
+        .chart-section {
+            margin: 2.5rem 0;
+            padding: 2rem;
+            background: rgba(15,23,42,0.6);
+            border: 1px solid rgba(99,102,241,0.15);
+            border-radius: 16px;
+        }
+        .chart-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-primary, #f1f5f9);
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+        .bar-chart {
+            display: flex;
+            align-items: flex-end;
+            gap: 6px;
+            height: 160px;
+            padding-bottom: 2rem;
+        }
+        .bar-group {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-end;
+            height: 100%;
+            gap: 4px;
+        }
+        .bar {
+            width: 100%;
+            border-radius: 4px 4px 0 0;
+            height: 0;
+            transition: height 1.2s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+        .bar.animated {
+            height: var(--bar-height);
+        }
+        .bar-green  { background: linear-gradient(180deg, #34d399, #10b981); }
+        .bar-yellow { background: linear-gradient(180deg, #fbbf24, #f59e0b); }
+        .bar-red    { background: linear-gradient(180deg, #f87171, #ef4444); }
+        .bar-label {
+            font-size: 0.55rem;
+            color: var(--text-muted, #64748b);
+            text-align: center;
+            transform: rotate(-35deg);
+            white-space: nowrap;
+            margin-top: 4px;
+        }
+        .chart-legend {
+            display: flex;
+            gap: 1.5rem;
+            justify-content: center;
+            margin-top: 0.5rem;
+            font-size: 0.8rem;
+            color: var(--text-muted, #64748b);
+        }
+        .legend-item { display: flex; align-items: center; gap: 6px; }
+        .legend-dot  { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+        .legend-green  { background: #34d399; }
+        .legend-yellow { background: #fbbf24; }
+        .legend-red    { background: #f87171; }
+
+        /* ── Report CTA ── */
+        .report-cta {
+            margin-top: 2rem;
+            padding: 1.5rem 2rem;
+            background: rgba(99,102,241,0.08);
+            border: 1px solid rgba(99,102,241,0.25);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+        }
+        .report-cta p {
+            margin: 0;
+            color: var(--text-muted, #64748b);
+            font-size: 0.95rem;
+        }
+
+        /* ── Supervisors ── */
+        .supervisors-section {
+            margin-top: 3rem;
+        }
+        .supervisors-section h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-primary, #f1f5f9);
+            margin-bottom: 1.25rem;
+            text-align: center;
+        }
+        .supervisor-grid {
+            display: flex;
+            gap: 1.5rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .supervisor-card {
+            background: rgba(99,102,241,0.07);
+            border: 1px solid rgba(99,102,241,0.18);
+            border-radius: 12px;
+            padding: 1.5rem 2rem;
+            text-align: center;
+            min-width: 180px;
+        }
+        .supervisor-card h4 {
+            margin: 0.75rem 0 0.3rem;
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-primary, #f1f5f9);
+        }
+        .supervisor-card p {
+            margin: 0;
+            font-size: 0.82rem;
+            color: var(--text-muted, #64748b);
+        }
+        .sup-avatar {
+            opacity: 0.7;
+        }
+
+        /* ── Team role ── */
+        .team-role {
+            font-size: 0.78rem;
+            color: #818cf8;
+            margin-top: 0.2rem;
+        }
+
+        /* ── Hero canvas ── */
+        #heroCanvas {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+    </style>
 </head>
 <body>
 
@@ -36,6 +300,7 @@
     <!-- Hero Section -->
     <section class="hero" id="hero">
         <div class="hero-bg">
+            <canvas id="heroCanvas"></canvas>
             <div class="hero-grid"></div>
         </div>
         <div class="hero-content">
@@ -51,6 +316,7 @@
             <div class="hero-actions">
                 <a href="#about" class="btn btn-primary">Explore the Project</a>
                 <a href="#library" class="btn btn-secondary">View the Library</a>
+                <a href="report.pdf" class="btn btn-secondary" download><svg width="16" height="16" viewBox="0 0 16 16" fill="none" style="margin-right:8px;vertical-align:middle"><path d="M8 1v10M4 8l4 4 4-4M2 14h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Download Report</a>
             </div>
             <div class="hero-stats">
                 <div class="stat">
@@ -108,7 +374,7 @@
                         we move from situations where causal effects cannot be estimated to ones where they can.
                     </p>
                     <div class="card-formula">
-                        <code>&Eopf;[Y ; do(a = a<sub>*</sub>)] &approx; (1/n) &sum;<sub>i</sub> &mu;&#x0302;<sub>i</sub>(a<sub>*</sub>)</code>
+                        $$\mathbb{E}[Y \,;\, \text{do}(a = a_\star)] \approx \frac{1}{n}\sum_{i=1}^{n} \hat{\mu}_i(a_\star)$$
                     </div>
                 </div>
             </div>
@@ -128,8 +394,8 @@
                     <h3>The Tutoring Problem</h3>
                     <p>
                         A school superintendent wants to know: <em>how effective is after-school tutoring at
-                        raising test scores?</em> For each school <var>i</var>, they record the average tutoring
-                        hours <var>&amacr;<sub>i</sub></var> and average test score <var>&ymacr;<sub>i</sub></var>.
+                        raising test scores?</em> For each school \(i\), they record the average tutoring
+                        hours \(\bar{A}_i\) and average test score \(\bar{Y}_i\).
                     </p>
                 </div>
                 <div class="problem-steps">
@@ -137,7 +403,7 @@
                         <div class="step-number">1</div>
                         <div class="step-content">
                             <h4>The Confounder</h4>
-                            <p>A school's budget <var>U<sub>i</sub></var> affects both tutoring availability and test scores.
+                            <p>A school's budget \(U_i\) affects both tutoring availability and test scores.
                             With only aggregated data, this hidden confounder makes causal identification <strong>impossible</strong>.</p>
                         </div>
                     </div>
@@ -145,8 +411,8 @@
                         <div class="step-number">2</div>
                         <div class="step-content">
                             <h4>The Hierarchy</h4>
-                            <p>Instead of averages, collect individual student data: for student <var>j</var> in school <var>i</var>,
-                            record tutoring hours <var>a<sub>ij</sub></var> and test score <var>y<sub>ij</sub></var>.</p>
+                            <p>Instead of averages, collect individual student data: for student \(j\) in school \(i\),
+                            record tutoring hours \(A_{ij}\) and test score \(Y_{ij}\).</p>
                         </div>
                     </div>
                     <div class="step">
@@ -286,6 +552,48 @@
                 </div>
             </div>
 
+            <!-- Animated Pipeline -->
+            <div class="pipeline-section">
+                <h3 class="pipeline-title">The HCM Pipeline</h3>
+                <div class="pipeline-container">
+                    <div class="pipeline-step">
+                        <div class="pipeline-icon"><svg viewBox="0 0 40 40" width="40" height="40"><circle cx="20" cy="10" r="6" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="10" cy="30" r="6" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="30" cy="30" r="6" fill="none" stroke="currentColor" stroke-width="2"/><line x1="16" y1="14" x2="12" y2="24" stroke="currentColor" stroke-width="1.5"/><line x1="24" y1="14" x2="28" y2="24" stroke="currentColor" stroke-width="1.5"/></svg></div>
+                        <div class="pipeline-label">Define HSCM</div>
+                        <div class="pipeline-desc">Build hierarchical graph with unit &amp; subunit nodes</div>
+                    </div>
+                    <div class="pipeline-connector"><div class="pipeline-pulse"></div></div>
+                    <div class="pipeline-step">
+                        <div class="pipeline-icon"><svg viewBox="0 0 40 40" width="40" height="40"><rect x="5" y="5" width="30" height="30" rx="4" fill="none" stroke="currentColor" stroke-width="2" stroke-dasharray="4 2"/><line x1="20" y1="12" x2="20" y2="28" stroke="currentColor" stroke-width="1.5"/><line x1="12" y1="20" x2="28" y2="20" stroke="currentColor" stroke-width="1.5" opacity="0.5"/></svg></div>
+                        <div class="pipeline-label">collapse()</div>
+                        <div class="pipeline-desc">HCM &rarr; flat CGM with Q-variables</div>
+                    </div>
+                    <div class="pipeline-connector"><div class="pipeline-pulse"></div></div>
+                    <div class="pipeline-step">
+                        <div class="pipeline-icon"><svg viewBox="0 0 40 40" width="40" height="40"><circle cx="20" cy="20" r="12" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="20" cy="20" r="5" fill="currentColor" opacity="0.3"/><line x1="20" y1="8" x2="20" y2="3" stroke="currentColor" stroke-width="1.5"/><line x1="20" y1="32" x2="20" y2="37" stroke="currentColor" stroke-width="1.5"/></svg></div>
+                        <div class="pipeline-label">augment()</div>
+                        <div class="pipeline-desc">Add deterministic \(\hat{Q}^y\) node</div>
+                    </div>
+                    <div class="pipeline-connector"><div class="pipeline-pulse"></div></div>
+                    <div class="pipeline-step">
+                        <div class="pipeline-icon"><svg viewBox="0 0 40 40" width="40" height="40"><circle cx="15" cy="20" r="8" fill="none" stroke="currentColor" stroke-width="2" opacity="0.4"/><circle cx="25" cy="20" r="8" fill="none" stroke="currentColor" stroke-width="2"/><line x1="15" y1="20" x2="5" y2="20" stroke="currentColor" stroke-width="1.5" stroke-dasharray="3 2"/></svg></div>
+                        <div class="pipeline-label">marginalize()</div>
+                        <div class="pipeline-desc">Remove eligible \(Q^C\) parents</div>
+                    </div>
+                    <div class="pipeline-connector"><div class="pipeline-pulse"></div></div>
+                    <div class="pipeline-step">
+                        <div class="pipeline-icon"><svg viewBox="0 0 40 40" width="40" height="40"><path d="M8 30 L16 15 L24 25 L32 10" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="32" cy="10" r="3" fill="currentColor"/></svg></div>
+                        <div class="pipeline-label">identify()</div>
+                        <div class="pipeline-desc">Do-calculus via pyAgrum</div>
+                    </div>
+                    <div class="pipeline-connector"><div class="pipeline-pulse"></div></div>
+                    <div class="pipeline-step">
+                        <div class="pipeline-icon"><svg viewBox="0 0 40 40" width="40" height="40"><rect x="6" y="22" width="6" height="12" rx="1" fill="currentColor" opacity="0.3"/><rect x="17" y="14" width="6" height="20" rx="1" fill="currentColor" opacity="0.5"/><rect x="28" y="6" width="6" height="28" rx="1" fill="currentColor" opacity="0.7"/></svg></div>
+                        <div class="pipeline-label">estimate()</div>
+                        <div class="pipeline-desc">Per-unit ATE with 12+ parametric families</div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Three Motifs -->
             <div class="motifs-section">
                 <h3 class="motifs-title">Three Core HCM Motifs</h3>
@@ -293,8 +601,8 @@
                     <div class="motif-card">
                         <div class="motif-header">Confounder</div>
                         <div class="motif-desc">
-                            Hidden unit-level variable <var>U<sub>i</sub></var> affects both treatment
-                            <var>A<sub>ij</sub></var> and outcome <var>Y<sub>ij</sub></var> at the subunit level.
+                            Hidden unit-level variable \(U_i\) affects both treatment
+                            \(A_{ij}\) and outcome \(Y_{ij}\) at the subunit level.
                         </div>
                         <div class="motif-example">
                             <strong>Example:</strong> School budget affects both tutoring hours and test scores.
@@ -303,8 +611,8 @@
                     <div class="motif-card">
                         <div class="motif-header">Confounder &amp; Interference</div>
                         <div class="motif-desc">
-                            Subunit treatments <var>A<sub>ij</sub></var> affect an observable unit-level variable
-                            <var>Z<sub>i</sub></var> that in turn affects all subunit outcomes.
+                            Subunit treatments \(A_{ij}\) affect an observable unit-level variable
+                            \(Z_i\) that in turn affects all subunit outcomes.
                         </div>
                         <div class="motif-example">
                             <strong>Example:</strong> More tutored students leads to school-wide academic culture,
@@ -314,8 +622,8 @@
                     <div class="motif-card">
                         <div class="motif-header">Instrument</div>
                         <div class="motif-desc">
-                            A subunit-level instrument <var>Z<sub>ij</sub></var> exogenously affects treatment,
-                            with the outcome <var>Y<sub>i</sub></var> now at the unit level.
+                            A subunit-level instrument \(Z_{ij}\) exogenously affects treatment,
+                            with the outcome \(\bar{Y}_i\) now at the unit level.
                         </div>
                         <div class="motif-example">
                             <strong>Example:</strong> Random tutoring incentives (instrument) affect whether a school
@@ -375,16 +683,67 @@
                 </div>
             </div>
 
+            <!-- Animated Counters -->
+            <div class="results-counters">
+                <div class="counter-card">
+                    <span class="counter-number" data-target="13">0</span><span class="counter-suffix">/13</span>
+                    <span class="counter-label">Identification Tests Passed</span>
+                </div>
+                <div class="counter-card">
+                    <span class="counter-number" data-target="2.4" data-decimals="1">0</span><span class="counter-suffix">%</span>
+                    <span class="counter-label">Best ATE Error</span>
+                </div>
+                <div class="counter-card">
+                    <span class="counter-number" data-target="13">0</span>
+                    <span class="counter-label">Graph Configurations</span>
+                </div>
+                <div class="counter-card">
+                    <span class="counter-number" data-target="3">0</span>
+                    <span class="counter-label">Core Motifs Validated</span>
+                </div>
+            </div>
+
+            <!-- Bar Chart -->
+            <div class="chart-section">
+                <h3 class="chart-title">ATE Absolute Error by Graph Configuration</h3>
+                <div class="bar-chart">
+                    <div class="bar-group"><div class="bar bar-green" data-value="0.024" style="--bar-height:3.1%"></div><div class="bar-label">confounder</div></div>
+                    <div class="bar-group"><div class="bar bar-green" data-value="0.043" style="--bar-height:5.5%"></div><div class="bar-label">nonID_ex5</div></div>
+                    <div class="bar-group"><div class="bar bar-green" data-value="0.086" style="--bar-height:11.1%"></div><div class="bar-label">nonID_ex4</div></div>
+                    <div class="bar-group"><div class="bar bar-yellow" data-value="0.143" style="--bar-height:18.4%"></div><div class="bar-label">nonID_ex1</div></div>
+                    <div class="bar-group"><div class="bar bar-yellow" data-value="0.145" style="--bar-height:18.7%"></div><div class="bar-label">ID_ex6</div></div>
+                    <div class="bar-group"><div class="bar bar-yellow" data-value="0.152" style="--bar-height:19.6%"></div><div class="bar-label">instrument</div></div>
+                    <div class="bar-group"><div class="bar bar-yellow" data-value="0.160" style="--bar-height:20.6%"></div><div class="bar-label">ID_ex1</div></div>
+                    <div class="bar-group"><div class="bar bar-yellow" data-value="0.163" style="--bar-height:21.0%"></div><div class="bar-label">conf_interf</div></div>
+                    <div class="bar-group"><div class="bar bar-yellow" data-value="0.164" style="--bar-height:21.1%"></div><div class="bar-label">ID_ex2</div></div>
+                    <div class="bar-group"><div class="bar bar-yellow" data-value="0.276" style="--bar-height:35.5%"></div><div class="bar-label">ID_targeted</div></div>
+                    <div class="bar-group"><div class="bar bar-yellow" data-value="0.290" style="--bar-height:37.3%"></div><div class="bar-label">ID_ex5</div></div>
+                    <div class="bar-group"><div class="bar bar-red" data-value="0.418" style="--bar-height:53.8%"></div><div class="bar-label">ID_ex4</div></div>
+                    <div class="bar-group"><div class="bar bar-red" data-value="0.777" style="--bar-height:100%"></div><div class="bar-label">ID_ex3</div></div>
+                </div>
+                <div class="chart-legend">
+                    <span class="legend-item"><span class="legend-dot legend-green"></span> &lt; 0.1</span>
+                    <span class="legend-item"><span class="legend-dot legend-yellow"></span> 0.1 &ndash; 0.3</span>
+                    <span class="legend-item"><span class="legend-dot legend-red"></span> &gt; 0.3</span>
+                </div>
+            </div>
+
             <!-- Equation highlight -->
             <div class="equation-highlight">
                 <div class="equation-label">Core Identification Result</div>
                 <div class="equation">
-                    <code>&Eopf;[Y ; do(a = a<sub>*</sub>)] = &int; &Eopf;[Y | A = a<sub>*</sub>, U = u] p(u) du &approx; (1/n) &sum;<sub>i=1</sub><sup>n</sup> &mu;&#x0302;<sub>i</sub>(a<sub>*</sub>)</code>
+                    $$\mathbb{E}[Y \,;\, \text{do}(a = a_\star)] = \int \mathbb{E}[Y \mid A=a_\star, U=u]\, p(u)\, du \approx \frac{1}{n}\sum_{i=1}^{n} \hat{\mu}_i(a_\star)$$
                 </div>
                 <p class="equation-desc">
                     The causal effect is estimated by fitting per-unit predictors and averaging their predictions
                     across units &mdash; each unit acts as its own natural experiment.
                 </p>
+            </div>
+
+            <!-- Report CTA -->
+            <div class="report-cta">
+                <p>Read the full technical report with proofs, algorithms, and experimental details.</p>
+                <a href="report.pdf" class="btn btn-primary" download>Download Full Report (PDF)</a>
             </div>
         </div>
     </section>
@@ -636,23 +995,45 @@ estimator.fit(Y, X=A)  <span class="cm"># supports 12+ parametric families</span
                     <div class="team-avatar">YO</div>
                     <h4>Yasser Oufqir</h4>
                     <p>&Eacute;cole Polytechnique</p>
+                    <p class="team-role">Implementation &amp; Architecture</p>
                 </div>
                 <div class="team-card">
                     <div class="team-avatar">AE</div>
                     <h4>Anass Ettahiri</h4>
                     <p>&Eacute;cole Polytechnique</p>
+                    <p class="team-role">Theory &amp; Identification</p>
                 </div>
                 <div class="team-card">
                     <div class="team-avatar">AO</div>
                     <h4>Aymen El Ouadrhiri</h4>
                     <p>&Eacute;cole Polytechnique</p>
+                    <p class="team-role">Estimation &amp; Experiments</p>
                 </div>
                 <div class="team-card">
                     <div class="team-avatar">SP</div>
                     <h4>Simon Patry</h4>
                     <p>&Eacute;cole Polytechnique</p>
+                    <p class="team-role">Validation &amp; Testing</p>
                 </div>
             </div>
+
+            <!-- Supervisors -->
+            <div class="supervisors-section">
+                <h3>Supervisors</h3>
+                <div class="supervisor-grid">
+                    <div class="supervisor-card">
+                        <div class="team-avatar sup-avatar">DC</div>
+                        <h4>David Cortes</h4>
+                        <p>X97 &mdash; Project Supervisor</p>
+                    </div>
+                    <div class="supervisor-card">
+                        <div class="team-avatar sup-avatar">JA</div>
+                        <h4>Janis Aiad</h4>
+                        <p>X22 &mdash; Project Supervisor</p>
+                    </div>
+                </div>
+            </div>
+
             <div class="references-section">
                 <h3>Reference Paper</h3>
                 <div class="ref-card">
@@ -681,5 +1062,131 @@ estimator.fit(Y, X=A)  <span class="cm"># supports 12+ parametric families</span
     </footer>
 
     <script src="script.js"></script>
+    <script>
+    // ── Hero canvas animated graph ──────────────────────────────────────────
+    (function () {
+        const canvas = document.getElementById('heroCanvas');
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+
+        let W, H, nodes, edges, animFrame;
+
+        function resize() {
+            W = canvas.width  = canvas.offsetWidth;
+            H = canvas.height = canvas.offsetHeight;
+        }
+
+        function makeNodes(n) {
+            return Array.from({length: n}, () => ({
+                x: Math.random() * W,
+                y: Math.random() * H,
+                vx: (Math.random() - 0.5) * 0.4,
+                vy: (Math.random() - 0.5) * 0.4,
+                r: Math.random() * 2 + 1.5
+            }));
+        }
+
+        function makeEdges(nodes, k) {
+            const out = [];
+            for (let i = 0; i < nodes.length; i++) {
+                const dists = nodes.map((n2, j) => ({j, d: Math.hypot(n2.x - nodes[i].x, n2.y - nodes[i].y)}))
+                    .sort((a, b) => a.d - b.d).slice(1, k + 1);
+                dists.forEach(({j}) => { if (j > i) out.push([i, j]); });
+            }
+            return out;
+        }
+
+        function init() {
+            resize();
+            nodes = makeNodes(55);
+            edges = makeEdges(nodes, 3);
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, W, H);
+
+            // Update
+            nodes.forEach(n => {
+                n.x += n.vx; n.y += n.vy;
+                if (n.x < 0 || n.x > W) n.vx *= -1;
+                if (n.y < 0 || n.y > H) n.vy *= -1;
+            });
+
+            // Draw edges
+            edges.forEach(([i, j]) => {
+                const a = nodes[i], b = nodes[j];
+                const dist = Math.hypot(b.x - a.x, b.y - a.y);
+                if (dist > 200) return;
+                const alpha = (1 - dist / 200) * 0.18;
+                ctx.beginPath();
+                ctx.moveTo(a.x, a.y);
+                ctx.lineTo(b.x, b.y);
+                ctx.strokeStyle = `rgba(99,102,241,${alpha})`;
+                ctx.lineWidth = 1;
+                ctx.stroke();
+            });
+
+            // Draw nodes
+            nodes.forEach(n => {
+                ctx.beginPath();
+                ctx.arc(n.x, n.y, n.r, 0, Math.PI * 2);
+                ctx.fillStyle = 'rgba(129,140,248,0.45)';
+                ctx.fill();
+            });
+
+            animFrame = requestAnimationFrame(draw);
+        }
+
+        window.addEventListener('resize', () => { resize(); });
+        init();
+        draw();
+    })();
+
+    // ── Animated counters ───────────────────────────────────────────────────
+    (function () {
+        function animateCounter(el) {
+            const target = parseFloat(el.dataset.target);
+            const decimals = parseInt(el.dataset.decimals || '0', 10);
+            const duration = 1800;
+            const start = performance.now();
+            function step(now) {
+                const t = Math.min((now - start) / duration, 1);
+                const ease = 1 - Math.pow(1 - t, 3);
+                el.textContent = (target * ease).toFixed(decimals);
+                if (t < 1) requestAnimationFrame(step);
+                else el.textContent = target.toFixed(decimals);
+            }
+            requestAnimationFrame(step);
+        }
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    animateCounter(entry.target);
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, {threshold: 0.3});
+
+        document.querySelectorAll('.counter-number').forEach(el => observer.observe(el));
+    })();
+
+    // ── Bar chart animate on scroll ─────────────────────────────────────────
+    (function () {
+        const chart = document.querySelector('.bar-chart');
+        if (!chart) return;
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.querySelectorAll('.bar').forEach((bar, i) => {
+                        setTimeout(() => bar.classList.add('animated'), i * 60);
+                    });
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, {threshold: 0.2});
+        observer.observe(chart);
+    })();
+    </script>
 </body>
 </html>
