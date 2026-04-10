@@ -1,10 +1,8 @@
 // ── AOS (scroll animations) ──
 AOS.init({ duration: 800, once: true, offset: 100 });
 
-// ── Lenis (smooth scroll) ──
-const lenis = new Lenis({ duration: 1.2 });
-function raf(time) { lenis.raf(time); requestAnimationFrame(raf); }
-requestAnimationFrame(raf);
+// ── Smooth scroll (native) ──
+// Lenis removed — native CSS scroll-behavior: smooth is sufficient
 
 // ── tsParticles (causal graph hero background) ──
 tsParticles.load("particles-hero", {
@@ -101,7 +99,8 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
         e.preventDefault();
         const target = document.querySelector(this.getAttribute('href'));
         if (target) {
-            lenis.scrollTo(target, { offset: -80 });
+            const top = target.getBoundingClientRect().top + window.pageYOffset - 80;
+            window.scrollTo({ top, behavior: 'smooth' });
         }
     });
 });
