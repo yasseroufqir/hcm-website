@@ -704,15 +704,15 @@
             <!-- Animated Counters -->
             <div class="results-counters">
                 <div class="counter-card">
-                    <span class="counter-number" data-target="13">0</span><span class="counter-suffix">/13</span>
+                    <span class="counter-number" data-target="7">0</span><span class="counter-suffix">/7</span>
                     <span class="counter-label">Identification Tests Passed</span>
                 </div>
                 <div class="counter-card">
-                    <span class="counter-number" data-target="2.4" data-decimals="1">0</span><span class="counter-suffix">%</span>
+                    <span class="counter-number" data-target="0.5" data-decimals="1">0</span><span class="counter-suffix">%</span>
                     <span class="counter-label">Best ATE Error</span>
                 </div>
                 <div class="counter-card">
-                    <span class="counter-number" data-target="13">0</span>
+                    <span class="counter-number" data-target="8">0</span>
                     <span class="counter-label">Graph Configurations</span>
                 </div>
                 <div class="counter-card">
@@ -1302,16 +1302,29 @@ estimator.fit(Y, X=A)  <span class="cm"># supports 12+ parametric families</span
 
     <script src="script.js"></script>
     <script>
+    // ── Auto-render KaTeX ($$...$$ and \(...\) delimiters) ────────────────────
+    // Run KaTeX FIRST so it doesn't interfere with counter DOM elements
+    if (typeof renderMathInElement === 'function') {
+        renderMathInElement(document.body, {
+            delimiters: [
+                {left: '$$', right: '$$', display: true},
+                {left: '\\(', right: '\\)', display: false}
+            ],
+            ignoredTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        });
+    }
+
     // ── Animated counters ───────────────────────────────────────────────────
     (function () {
         function animateCounter(el) {
-            const target = parseFloat(el.dataset.target);
-            const decimals = parseInt(el.dataset.decimals || '0', 10);
-            const duration = 1800;
-            const start = performance.now();
+            var target = parseFloat(el.getAttribute('data-target'));
+            var decimals = parseInt(el.getAttribute('data-decimals') || '0', 10);
+            if (isNaN(target)) return;
+            var duration = 1800;
+            var start = performance.now();
             function step(now) {
-                const t = Math.min((now - start) / duration, 1);
-                const ease = 1 - Math.pow(1 - t, 3);
+                var t = Math.min((now - start) / duration, 1);
+                var ease = 1 - Math.pow(1 - t, 3);
                 el.textContent = (target * ease).toFixed(decimals);
                 if (t < 1) requestAnimationFrame(step);
                 else el.textContent = target.toFixed(decimals);
@@ -1319,38 +1332,30 @@ estimator.fit(Y, X=A)  <span class="cm"># supports 12+ parametric families</span
             requestAnimationFrame(step);
         }
 
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
+        var counterEls = document.querySelectorAll('.counter-number, .bench-counter');
+        if (!counterEls.length) return;
+
+        var observer = new IntersectionObserver(function (entries) {
+            entries.forEach(function (entry) {
                 if (entry.isIntersecting) {
                     animateCounter(entry.target);
                     observer.unobserve(entry.target);
                 }
             });
-        }, {threshold: 0.3});
+        }, {threshold: 0.2});
 
-        document.querySelectorAll('.counter-number').forEach(el => observer.observe(el));
-        document.querySelectorAll('.bench-counter').forEach(el => observer.observe(el));
+        counterEls.forEach(function (el) { observer.observe(el); });
     })();
-
-    // ── Auto-render KaTeX ($$...$$ and \(...\) delimiters) ────────────────────
-    if (typeof renderMathInElement === 'function') {
-        renderMathInElement(document.body, {
-            delimiters: [
-                {left: '$$', right: '$$', display: true},
-                {left: '\\(', right: '\\)', display: false}
-            ]
-        });
-    }
 
     // ── Bar chart animate on scroll ─────────────────────────────────────────
     (function () {
-        const chart = document.querySelector('.bar-chart');
+        var chart = document.querySelector('.bar-chart');
         if (!chart) return;
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
+        var observer = new IntersectionObserver(function (entries) {
+            entries.forEach(function (entry) {
                 if (entry.isIntersecting) {
-                    entry.target.querySelectorAll('.bar').forEach((bar, i) => {
-                        setTimeout(() => bar.classList.add('animated'), i * 60);
+                    entry.target.querySelectorAll('.bar').forEach(function (bar, i) {
+                        setTimeout(function () { bar.classList.add('animated'); }, i * 60);
                     });
                     observer.unobserve(entry.target);
                 }
