@@ -27,6 +27,12 @@
     --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+/* ===== KATEX DARK MODE ===== */
+.katex { color: var(--text); }
+.katex .mord, .katex .mbin, .katex .mrel, .katex .mopen, .katex .mclose,
+.katex .mpunct, .katex .mop, .katex .minner { color: inherit; }
+.katex .katex-html .newline { background: transparent; }
+
 /* ===== RESET ===== */
 *, *::before, *::after {
     margin: 0;
